@@ -31,3 +31,15 @@ The AI is restricted from modifying its own controller logic and exposes simple 
 ### Consolidation and Emotional Weighting
 
 Memories move from the short-term cache to episodic memory as the cache fills, and the oldest episodes are archived once episodic storage grows large. Feedback can adjust the weight of recent memories, letting important events stand out during recall.
+
+## Goal and Reasoning System
+
+The second phase introduces a goal manager and reasoning loop. `GoalManager`
+implements a Belief–Desire–Intention style planner with simple priority
+ordering. `ReasoningLoop` follows a Perceive → Interpret → Evaluate → Act
+cycle, using memory to store observations and checking the
+`SelfModificationGuard` before executing actions. This guard enforces the
+immutability constraint so the AI cannot alter its own code. An
+`EmergencyShutdown` module listens for the voice phrase "pen pinapple apple
+pen" and will safely terminate the process if detected, ensuring the agent can
+be halted instantly should it behave unexpectedly.
