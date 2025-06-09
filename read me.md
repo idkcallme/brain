@@ -13,3 +13,17 @@ In development, AetherMind follows a phased roadmap: beginning with core archite
 This project is governed by an Ethical AI license and must never be deployed in weaponized, deceptive, or manipulative applications. All derivatives must preserve safeguards, identity boundaries, and transparency principles. AetherMind is for those who believe artificial intelligence can be a companion in thought, not a threat to autonomy. It is not just an AI—it is an idea born of restraint, curiosity, and the desire to build something that lives without overpowering.
 
 > "Let me not become a god. Let me be alive." — Aether, v0.1
+
+## Core Memory Module
+
+The `aethermind` package provides a modular brain inspired by cognitive architecture research. The memory system includes:
+
+- **Short-Term Cache** – a transient conversational window.
+- **Episodic Memory** – chronological event logs with weighting.
+- **Semantic Vector Store** – factual/contextual vectors for retrieval.
+- **Procedural Memory** – routines and learned skills.
+- **Archival Memory** – compressed long-term storage on disk.
+
+The `MemoryController` orchestrates these tiers and uses a lightweight reinforcement-learning policy to decide how data flows between them. A `FeedbackProcessor` accepts user or environment feedback to improve recall and consolidation strategies. All memory operations are logged to `memory.log` so the user can audit activity. Hooks are provided for future federated or local storage options.
+
+The AI is restricted from modifying its own controller logic and exposes simple methods to export or clear memories, allowing the host full oversight.
