@@ -5,6 +5,7 @@ from .goals import GoalManager, Goal, Belief
 from .reasoning import ReasoningLoop
 from .safeguard import SelfModificationGuard, EmergencyShutdown
 from .identity import Identity
+from .llm import chat
 
 __all__ = [
     "Brain",
@@ -15,4 +16,5 @@ __all__ = [
     "SelfModificationGuard",
     "EmergencyShutdown",
     "Identity",
+    "chat",
 ]
