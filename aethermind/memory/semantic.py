@@ -14,6 +14,9 @@ class SemanticVectorStore:
         self.dim = dim
         self._vectors: List[SemanticItem] = []
 
+    def __len__(self):
+        return len(self._vectors)
+
     def add(self, vector: np.ndarray, data: Any) -> None:
         if vector.shape[0] != self.dim:
             raise ValueError("Vector dimension mismatch")

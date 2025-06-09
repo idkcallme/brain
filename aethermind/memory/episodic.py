@@ -19,8 +19,16 @@ class EpisodicMemory:
         self._events.append(ep)
         return ep
 
+    def search(self, keyword: str, n: int = 5) -> List[Episode]:
+        """Return episodes containing the keyword, ordered from newest."""
+        matches = [e for e in reversed(self._events) if keyword.lower() in str(e.data).lower()]
+        return matches[:n]
+
     def get_recent(self, n: int = 10) -> List[Episode]:
         return self._events[-n:]
 
     def all_events(self) -> List[Episode]:
         return list(self._events)
+
+    def __len__(self):
+        return len(self._events)

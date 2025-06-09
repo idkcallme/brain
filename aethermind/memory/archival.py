@@ -19,3 +19,9 @@ class ArchivalMemory:
     def save(self, data: Dict) -> None:
         with gzip.open(self.path, 'wb') as f:
             pickle.dump(data, f)
+
+    def append(self, item: Any) -> None:
+        """Append a single item to the archive."""
+        data = self.load()
+        data.append(item)
+        self.save(data)

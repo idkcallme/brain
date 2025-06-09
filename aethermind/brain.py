@@ -23,3 +23,6 @@ class Brain:
 
     def consolidate(self):
         self.controller.consolidate()
+
+    def clear_short_term(self):
+        self.controller.clear_short_term()

@@ -21,6 +21,8 @@ class MemoryController:
         self.feedback = FeedbackProcessor(self)
         self.q_table = {}
         self.actions = ['short_term', 'episodic', 'semantic', 'procedural', 'archival']
+        self.short_term_threshold = 10
+        self.episodic_threshold = 100
 
     def _choose_action(self, state: str) -> str:
         """Epsilon-greedy policy."""
@@ -47,10 +49,9 @@ class MemoryController:
         elif action == 'procedural' and callable(data):
             self.procedural.add_routine(getattr(data, '__name__', 'routine'), data)
         elif action == 'archival':
-            current = self.archival.load()
-            current.append(data)
-            self.archival.save(current)
+            self.archival.append(data)
         self._update_q(state, action, reward=1.0)
+        self.consolidate()
 
     def recall(self, query: Any = None, vector: np.ndarray = None):
         state = 'recall'
@@ -60,7 +61,10 @@ class MemoryController:
         if action == 'short_term':
             result = self.short_term.get_all()
         elif action == 'episodic':
-            result = self.episodic.get_recent()
+            if isinstance(query, str):
+                result = self.episodic.search(query)
+            else:
+                result = self.episodic.get_recent()
         elif action == 'semantic' and vector is not None:
             result = self.semantic.search(vector)
         elif action == 'procedural' and isinstance(query, str):
@@ -71,15 +75,30 @@ class MemoryController:
         return result
 
     def consolidate(self):
-        """Placeholder for memory consolidation logic."""
+        """Move memories between tiers based on thresholds."""
         logger.info("Consolidation step")
-        # Implementation of consolidation policy would go here
+        # move oldest short-term item to episodic if cache is full
+        if len(self.short_term) >= self.short_term_threshold:
+            oldest = self.short_term.pop_oldest()
+            if oldest:
+                self.episodic.add(data=oldest.data, weight=oldest.weight)
+
+        # archive oldest episodic events when episodic memory grows large
+        while len(self.episodic) > self.episodic_threshold:
+            oldest_episode = self.episodic._events.pop(0)
+            self.archival.append({
+                'timestamp': oldest_episode.timestamp,
+                'data': oldest_episode.data,
+                'weight': oldest_episode.weight,
+            })
 
     # Hooks for future federated or local storage options
     def export_memory(self) -> dict:
         return {
             'short_term': self.short_term.get_all(),
             'episodic': self.episodic.all_events(),
+            'semantic_count': len(self.semantic),
+            'procedural_routines': self.procedural.list_routines(),
             'q_table': self.q_table,
         }
 

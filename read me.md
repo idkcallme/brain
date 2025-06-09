@@ -27,3 +27,7 @@ The `aethermind` package provides a modular brain inspired by cognitive architec
 The `MemoryController` orchestrates these tiers and uses a lightweight reinforcement-learning policy to decide how data flows between them. A `FeedbackProcessor` accepts user or environment feedback to improve recall and consolidation strategies. All memory operations are logged to `memory.log` so the user can audit activity. Hooks are provided for future federated or local storage options.
 
 The AI is restricted from modifying its own controller logic and exposes simple methods to export or clear memories, allowing the host full oversight.
+
+### Consolidation and Emotional Weighting
+
+Memories move from the short-term cache to episodic memory as the cache fills, and the oldest episodes are archived once episodic storage grows large. Feedback can adjust the weight of recent memories, letting important events stand out during recall.

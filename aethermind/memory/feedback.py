@@ -14,4 +14,8 @@ class FeedbackProcessor:
         action = feedback.get('action')
         if action:
             self.controller._update_q(state, action, reward)
+        # adjust weight of most recent episodic memory as a simple emotional cue
+        weight_delta = feedback.get('weight_delta')
+        if weight_delta is not None and self.controller.episodic._events:
+            self.controller.episodic._events[-1].weight += weight_delta
         logger.info(f"Processed feedback: {feedback}")

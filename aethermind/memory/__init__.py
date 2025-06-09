@@ -6,3 +6,14 @@ from .procedural import ProceduralMemory
 from .archival import ArchivalMemory
 from .controller import MemoryController
 from .feedback import FeedbackProcessor
+
+__all__ = [
+    'ShortTermCache',
+    'ShortTermItem',
+    'EpisodicMemory',
+    'SemanticVectorStore',
+    'ProceduralMemory',
+    'ArchivalMemory',
+    'MemoryController',
+    'FeedbackProcessor',
+]
