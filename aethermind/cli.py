@@ -4,6 +4,7 @@ from .brain import Brain
 from .goals import GoalManager
 from .reasoning import ReasoningLoop
 from .safeguard import SelfModificationGuard, EmergencyShutdown
+from .input_handler import process_user_input
 from .identity import Identity
 
 
@@ -38,7 +39,8 @@ def main() -> None:
                     else:
                         print("-", e)
                 continue
-            loop.cycle(user_input)
+            sanitized = process_user_input(user_input, guard)
+            loop.cycle(sanitized)
         except KeyboardInterrupt:
             print("\nStopped")
             break

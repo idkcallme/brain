@@ -26,7 +26,6 @@ class ReasoningLoop:
     def evaluate(self, interpreted: Any) -> str:
         """Evaluate the input in light of goals and safety."""
         self.shutdown.check_phrase(str(interpreted))
-        self.guard.ensure_safe()
         goal = self.goals.next_goal()
         if goal:
             return f"Goal: {goal.description}"
@@ -38,7 +37,6 @@ class ReasoningLoop:
         return None
 
     def act(self, action: Callable[[], Any] | None) -> Any:
-        self.guard.ensure_safe()
         if action:
             return action()
         return None
