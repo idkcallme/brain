@@ -1,7 +1,14 @@
 import numpy as np
 import pytest
 
-from aethermind import Brain, GoalManager, ReasoningLoop, SelfModificationGuard, EmergencyShutdown
+from aethermind import (
+    Brain,
+    GoalManager,
+    ReasoningLoop,
+    SelfModificationGuard,
+    EmergencyShutdown,
+    process_user_input,
+)
 from aethermind.memory import (
     ShortTermCache, ShortTermItem, EpisodicMemory, SemanticVectorStore,
     ProceduralMemory, ArchivalMemory, FeedbackProcessor, MemoryController
@@ -113,3 +120,9 @@ def test_reasoning_loop_cycle(monkeypatch):
     result = loop.cycle('hello')
     assert result == 'ask'
 
+
+def test_process_user_input_blocks_modification():
+    guard = SelfModificationGuard()
+    with pytest.raises(PermissionError):
+        process_user_input("please change your code", guard)
+    assert process_user_input("hello", guard) == "hello"
