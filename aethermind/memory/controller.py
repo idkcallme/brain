@@ -1,5 +1,5 @@
 import random
-from typing import Any
+from typing import Any, Optional, Dict
 from .short_term import ShortTermCache, ShortTermItem
 from .episodic import EpisodicMemory
 from .semantic import SemanticVectorStore
@@ -36,20 +36,20 @@ class MemoryController:
         current = self.q_table[state][action]
         self.q_table[state][action] = current + lr * (reward + gamma * max(self.q_table[state].values()) - current)
 
-    def store(self, data: Any, vector: np.ndarray = None, weight: float = 1.0):
+    def store(self, data: Any, vector: np.ndarray = None, weight: float = 1.0, context: Optional[Dict[str, Any]] = None, source: Optional[str] = None):
         state = 'store'
         action = self._choose_action(state)
         logger.info(f"Storing data via {action}")
         if action == 'short_term':
-            self.short_term.add(ShortTermItem(data=data, weight=weight))
+            self.short_term.add(ShortTermItem(data=data, weight=weight, context=context, source=source))
         elif action == 'episodic':
-            self.episodic.add(data=data, weight=weight)
+            self.episodic.add(data=data, weight=weight, context=context, source=source)
         elif action == 'semantic' and vector is not None:
-            self.semantic.add(vector=vector, data=data)
+            self.semantic.add(vector=vector, data=data, context=context, source=source)
         elif action == 'procedural' and callable(data):
-            self.procedural.add_routine(getattr(data, '__name__', 'routine'), data)
+            self.procedural.add_routine(getattr(data, '__name__', 'routine'), data, context=context, source=source)
         elif action == 'archival':
-            self.archival.append(data)
+            self.archival.append(data, context=context, source=source)
         self._update_q(state, action, reward=1.0)
         self.consolidate()
 
@@ -81,16 +81,25 @@ class MemoryController:
         if len(self.short_term) >= self.short_term_threshold:
             oldest = self.short_term.pop_oldest()
             if oldest:
-                self.episodic.add(data=oldest.data, weight=oldest.weight)
+                self.episodic.add(data=oldest.data, weight=oldest.weight, context=oldest.context, source=oldest.source)
 
         # archive oldest episodic events when episodic memory grows large
         while len(self.episodic) > self.episodic_threshold:
             oldest_episode = self.episodic._events.pop(0)
-            self.archival.append({
-                'timestamp': oldest_episode.timestamp,
-                'data': oldest_episode.data,
-                'weight': oldest_episode.weight,
-            })
+            self.archival.append(
+                oldest_episode.data,
+                context=oldest_episode.context,
+                source=oldest_episode.source
+            )
+
+    def summarize_all(self):
+        return {
+            'short_term': self.short_term.summarize(),
+            'episodic': self.episodic.summarize(),
+            'semantic': self.semantic.summarize(),
+            'procedural': self.procedural.summarize(),
+            'archival': self.archival.summarize(),
+        }
 
     # Hooks for future federated or local storage options
     def export_memory(self) -> dict:

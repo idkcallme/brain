@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Any, List
+from typing import Any, List, Optional, Dict
 import time
 
 @dataclass
@@ -7,6 +7,8 @@ class Episode:
     timestamp: float
     data: Any
     weight: float = 1.0
+    context: Optional[Dict[str, Any]] = None
+    source: Optional[str] = None
 
 class EpisodicMemory:
     """Chronological log of events."""
@@ -14,8 +16,8 @@ class EpisodicMemory:
     def __init__(self):
         self._events: List[Episode] = []
 
-    def add(self, data: Any, weight: float = 1.0) -> Episode:
-        ep = Episode(timestamp=time.time(), data=data, weight=weight)
+    def add(self, data: Any, weight: float = 1.0, context: Optional[Dict[str, Any]] = None, source: Optional[str] = None) -> Episode:
+        ep = Episode(timestamp=time.time(), data=data, weight=weight, context=context, source=source)
         self._events.append(ep)
         return ep
 
@@ -29,6 +31,14 @@ class EpisodicMemory:
 
     def all_events(self) -> List[Episode]:
         return list(self._events)
+
+    def summarize(self, n: int = 10):
+        # Example: summarize the last n episodes (stub)
+        if not self._events:
+            return None
+        recent = self._events[-n:]
+        summary = f"Summary of last {len(recent)} episodes."
+        return summary
 
     def __len__(self):
         return len(self._events)
